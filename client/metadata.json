@@ -1,0 +1,6 @@
+{
+  "name": "MedTrack – Hospital Bed Capacity Forecasting & Transfer System",
+  "description": "Enterprise hospital operations platform with real-time bed tracking, inter-ward transfers, diagnostics, 7-day predictive forecasting, and 4 role dashboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
