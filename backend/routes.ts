@@ -20,6 +20,31 @@ import {
 
 const router = Router();
 
+// 0. Base Root Welcome & Service Status Message
+router.get('/', (_req: Request, res: Response) => {
+  res.json({
+    status: 'online',
+    service: 'MedTrack Hospital Management Backend API',
+    message: 'Backend server is active and running successfully.',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/api/health',
+      databaseStatus: '/api/database/status',
+      hospitalState: '/api/hospital/state',
+      beds: '/api/beds',
+      patients: '/api/patients',
+      admissions: '/api/admissions',
+      transfers: '/api/transfers',
+      discharges: '/api/discharges',
+      diagnostics: '/api/diagnostics',
+      payments: '/api/payments',
+      vitals: '/api/vitals',
+      auditLogs: '/api/audit-logs'
+    }
+  });
+});
+
 // 1. Health & Database Status
 router.get('/health', async (req: Request, res: Response) => {
   const status = await getMongoStatus();
