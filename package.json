@@ -5,20 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "node dev.mjs",
-    "dev:client": "node node_modules/vite/bin/vite.js --config client/vite.config.ts client",
-    "dev:server": "node node_modules/tsx/dist/cli.mjs watch server/index.ts",
-    "build": "npm run build:client && npm run build:server",
-    "build:client": "node node_modules/vite/bin/vite.js build --config client/vite.config.ts client",
-    "build:server": "node node_modules/esbuild/bin/esbuild server/index.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=server/dist/server.cjs",
-    "start": "node server/dist/server.cjs",
-    "preview": "node node_modules/vite/bin/vite.js preview --config client/vite.config.ts client",
-    "clean": "node -e \"for (const path of ['client/dist', 'server/dist']) require('node:fs').rmSync(path, { recursive: true, force: true })\"",
+    "dev:frontend": "node node_modules/vite/bin/vite.js --config frontend/vite.config.ts frontend",
+    "dev:backend": "node node_modules/tsx/dist/cli.mjs watch backend/index.ts",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "node node_modules/vite/bin/vite.js build --config frontend/vite.config.ts frontend",
+    "build:backend": "node node_modules/esbuild/bin/esbuild backend/index.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=backend/dist/server.cjs",
+    "build:client": "npm run build:frontend",
+    "build:server": "npm run build:backend",
+    "start": "node backend/dist/server.cjs",
+    "preview": "node node_modules/vite/bin/vite.js preview --config frontend/vite.config.ts frontend",
+    "clean": "node -e \"for (const path of ['frontend/dist', 'backend/dist']) require('node:fs').rmSync(path, { recursive: true, force: true })\"",
     "lint": "node node_modules/typescript/bin/tsc --noEmit"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
+    "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "lucide-react": "^0.546.0",
@@ -30,13 +33,14 @@
     "vite": "^6.2.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.3",
-    "@types/express": "^4.17.21"
+    "vite": "^6.2.3"
   }
 }

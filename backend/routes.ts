@@ -4,8 +4,19 @@ import {
   syncHospitalState,
   getMongoStatus,
   resetDatabaseToSeed,
-  getMongoClient
+  inMemoryState
 } from './db';
+import {
+  savePatient,
+  updateBed,
+  recordAdmission,
+  recordTransfer,
+  recordDischarge,
+  recordPayment,
+  recordDiagnosticRequest,
+  recordVitals,
+  recordAudit
+} from './services/dbOperations';
 
 const router = Router();
 
@@ -75,7 +86,7 @@ router.post('/hospital/reset', async (req: Request, res: Response) => {
   }
 });
 
-// 4. Collection-specific endpoints
+// 4. Beds Endpoints
 router.get('/beds', async (req: Request, res: Response) => {
   try {
     const state = await fetchHospitalState();
@@ -88,16 +99,17 @@ router.get('/beds', async (req: Request, res: Response) => {
 router.put('/beds/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updatedBed = req.body;
-    const state = await fetchHospitalState();
-    const newBeds = state.beds.map(b => b.id === id ? { ...b, ...updatedBed } : b);
-    await syncHospitalState({ beds: newBeds });
+    const updatedBed = await updateBed(id, req.body);
+    if (!updatedBed) {
+      return res.status(404).json({ error: `Bed with ID ${id} not found` });
+    }
     res.json({ success: true, bed: updatedBed });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
 
+// 5. Patients Endpoints
 router.get('/patients', async (req: Request, res: Response) => {
   try {
     const state = await fetchHospitalState();
@@ -109,16 +121,24 @@ router.get('/patients', async (req: Request, res: Response) => {
 
 router.post('/patients', async (req: Request, res: Response) => {
   try {
-    const newPatient = req.body;
-    const state = await fetchHospitalState();
-    const updatedPatients = [newPatient, ...state.patients];
-    await syncHospitalState({ patients: updatedPatients });
-    res.json({ success: true, patient: newPatient });
+    const patient = await savePatient(req.body);
+    res.json({ success: true, patient });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
+router.put('/patients/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const patient = await savePatient({ ...req.body, id });
+    res.json({ success: true, patient });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// 6. Admissions Endpoints
 router.get('/admissions', async (req: Request, res: Response) => {
   try {
     const state = await fetchHospitalState();
@@ -128,6 +148,16 @@ router.get('/admissions', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/admissions', async (req: Request, res: Response) => {
+  try {
+    const admission = await recordAdmission(req.body);
+    res.json({ success: true, admission });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// 7. Transfers Endpoints
 router.get('/transfers', async (req: Request, res: Response) => {
   try {
     const state = await fetchHospitalState();
@@ -137,6 +167,16 @@ router.get('/transfers', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/transfers', async (req: Request, res: Response) => {
+  try {
+    const transfer = await recordTransfer(req.body);
+    res.json({ success: true, transfer });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// 8. Discharges Endpoints
 router.get('/discharges', async (req: Request, res: Response) => {
   try {
     const state = await fetchHospitalState();
@@ -146,6 +186,16 @@ router.get('/discharges', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/discharges', async (req: Request, res: Response) => {
+  try {
+    const discharge = await recordDischarge(req.body);
+    res.json({ success: true, discharge });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// 9. Diagnostics Endpoints
 router.get('/diagnostics', async (req: Request, res: Response) => {
   try {
     const state = await fetchHospitalState();
@@ -159,6 +209,16 @@ router.get('/diagnostics', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/diagnostics/requests', async (req: Request, res: Response) => {
+  try {
+    const request = await recordDiagnosticRequest(req.body);
+    res.json({ success: true, request });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// 10. Payments Endpoints
 router.get('/payments', async (req: Request, res: Response) => {
   try {
     const state = await fetchHospitalState();
@@ -168,12 +228,50 @@ router.get('/payments', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/payments', async (req: Request, res: Response) => {
+  try {
+    const payment = await recordPayment(req.body);
+    res.json({ success: true, payment });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// 11. Vitals Endpoints
+router.get('/vitals', async (req: Request, res: Response) => {
+  try {
+    const state = await fetchHospitalState();
+    res.json(state.vitals);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/vitals', async (req: Request, res: Response) => {
+  try {
+    const vitals = await recordVitals(req.body);
+    res.json({ success: true, vitals });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// 12. Audit Logs Endpoints
 router.get('/audit-logs', async (req: Request, res: Response) => {
   try {
     const state = await fetchHospitalState();
     res.json(state.auditLogs);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/audit-logs', async (req: Request, res: Response) => {
+  try {
+    const audit = await recordAudit(req.body);
+    res.json({ success: true, audit });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
   }
 });
 

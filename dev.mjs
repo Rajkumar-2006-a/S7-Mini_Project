@@ -33,8 +33,8 @@ process.env.VITE_API_URL = `http://localhost:${port}`;
 console.log(`[dev] Using API port ${port}`);
 
 const commands = [
-  ['node_modules/vite/bin/vite.js', ['--config', 'client/vite.config.ts', 'client']],
-  ['node_modules/tsx/dist/cli.mjs', ['watch', 'server/index.ts']],
+  ['node_modules/vite/bin/vite.js', ['--config', 'frontend/vite.config.ts', 'frontend']],
+  ['node_modules/tsx/dist/cli.mjs', ['watch', 'backend/index.ts']],
 ];
 
 let stopping = false;

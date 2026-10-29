@@ -94,6 +94,7 @@ import {
   HISTORICAL_7_DAYS
 } from '../data/seedData';
 import { generateHospitalForecast, ForecastSummary } from '../utils/forecasting';
+import { getApiUrl } from '../services/api';
 
 interface HospitalContextType {
   // Authentication & Session
@@ -421,7 +422,7 @@ export const HospitalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     let isMounted = true;
     const fetchInitialState = async () => {
       try {
-        const res = await fetch('/api/hospital/state');
+        const res = await fetch(getApiUrl('/api/hospital/state'));
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.data && isMounted) {
@@ -454,7 +455,7 @@ export const HospitalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const interval = setInterval(async () => {
       try {
-        const res = await fetch('/api/database/status');
+        const res = await fetch(getApiUrl('/api/database/status'));
         if (res.ok) {
           const status = await res.json();
           if (isMounted) setMongoStatus(status);
@@ -470,7 +471,7 @@ export const HospitalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const refreshMongoStatus = async () => {
     try {
-      const res = await fetch('/api/database/status');
+      const res = await fetch(getApiUrl('/api/database/status'));
       if (res.ok) {
         const status = await res.json();
         setMongoStatus(status);
@@ -483,7 +484,7 @@ export const HospitalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const syncWithDatabase = async () => {
     setIsSyncing(true);
     try {
-      const res = await fetch('/api/hospital/sync', {
+      const res = await fetch(getApiUrl('/api/hospital/sync'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -695,7 +696,7 @@ export const HospitalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Debounced MongoDB background synchronizer
   useEffect(() => {
     const handler = setTimeout(() => {
-      fetch('/api/hospital/sync', {
+      fetch(getApiUrl('/api/hospital/sync'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1957,7 +1958,7 @@ export const HospitalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const resetToDemoData = async () => {
     try {
-      const res = await fetch('/api/hospital/reset', { method: 'POST' });
+      const res = await fetch(getApiUrl('/api/hospital/reset'), { method: 'POST' });
       if (res.ok) {
         const json = await res.json();
         if (json.dbStatus) {

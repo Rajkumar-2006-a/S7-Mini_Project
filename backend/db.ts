@@ -18,7 +18,7 @@ import {
   INITIAL_TREATMENT_NOTES,
   INITIAL_NOTIFICATIONS,
   INITIAL_AUDIT_LOGS
-} from '../client/src/data/seedData';
+} from '../frontend/src/data/seedData';
 
 export interface HospitalDatabaseState {
   settings: typeof INITIAL_SETTINGS;
@@ -53,7 +53,7 @@ export interface MongoStatus {
 }
 
 // In-Memory Fallback State (when MongoDB URI is not set or while establishing connection)
-let inMemoryState: HospitalDatabaseState = {
+export let inMemoryState: HospitalDatabaseState = {
   settings: JSON.parse(JSON.stringify(INITIAL_SETTINGS)),
   wards: JSON.parse(JSON.stringify(INITIAL_WARDS)),
   beds: JSON.parse(JSON.stringify(INITIAL_BEDS)),
