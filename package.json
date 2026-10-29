@@ -5,17 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "node dev.mjs",
-    "dev:frontend": "node node_modules/vite/bin/vite.js --config frontend/vite.config.ts frontend",
-    "dev:backend": "node node_modules/tsx/dist/cli.mjs watch backend/index.ts",
-    "build": "npm run build:frontend && npm run build:backend",
-    "build:frontend": "node node_modules/vite/bin/vite.js build --config frontend/vite.config.ts frontend",
-    "build:backend": "node node_modules/esbuild/bin/esbuild backend/index.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=backend/dist/server.cjs",
-    "build:client": "npm run build:frontend",
-    "build:server": "npm run build:backend",
-    "start": "node backend/dist/server.cjs",
-    "preview": "node node_modules/vite/bin/vite.js preview --config frontend/vite.config.ts frontend",
-    "clean": "node -e \"for (const path of ['frontend/dist', 'backend/dist']) require('node:fs').rmSync(path, { recursive: true, force: true })\"",
-    "lint": "node node_modules/typescript/bin/tsc --noEmit"
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build": "npm --prefix frontend run build && npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:backend": "npm --prefix backend run build",
+    "build:client": "npm --prefix frontend run build",
+    "build:server": "npm --prefix backend run build",
+    "start": "npm --prefix backend run start",
+    "preview": "npm --prefix frontend run preview",
+    "clean": "node -e \"for (const path of ['frontend/dist', 'backend/dist', 'api']) try { require('node:fs').rmSync(path, { recursive: true, force: true }) } catch {}\"",
+    "lint": "npm --prefix frontend run build"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

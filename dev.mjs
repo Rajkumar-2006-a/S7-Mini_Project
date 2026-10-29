@@ -1,5 +1,15 @@
 import { spawn } from 'node:child_process';
 import net from 'node:net';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Clean up obsolete root /api folder so only frontend and backend folders remain
+if (fs.existsSync('api')) {
+  try {
+    fs.rmSync('api', { recursive: true, force: true });
+    console.log('[dev] Cleaned up obsolete root /api folder');
+  } catch {}
+}
 
 async function findAvailablePort(startPort) {
   return new Promise((resolve, reject) => {
@@ -27,14 +37,25 @@ async function findAvailablePort(startPort) {
   });
 }
 
+function resolveBinary(subdir, binRelativePath) {
+  const localPath = path.resolve(subdir, 'node_modules', binRelativePath);
+  if (fs.existsSync(localPath)) {
+    return localPath;
+  }
+  return path.resolve('node_modules', binRelativePath);
+}
+
 const port = await findAvailablePort(Number(process.env.PORT) || 4100);
 process.env.PORT = String(port);
 process.env.VITE_API_URL = `http://localhost:${port}`;
 console.log(`[dev] Using API port ${port}`);
 
+const viteBin = resolveBinary('frontend', path.join('vite', 'bin', 'vite.js'));
+const tsxBin = resolveBinary('backend', path.join('tsx', 'dist', 'cli.mjs'));
+
 const commands = [
-  ['node_modules/vite/bin/vite.js', ['--config', 'frontend/vite.config.ts', 'frontend']],
-  ['node_modules/tsx/dist/cli.mjs', ['watch', 'backend/index.ts']],
+  [viteBin, ['--config', 'frontend/vite.config.ts', 'frontend']],
+  [tsxBin, ['watch', 'backend/index.ts']],
 ];
 
 let stopping = false;

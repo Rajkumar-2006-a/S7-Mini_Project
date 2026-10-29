@@ -25,7 +25,7 @@ import {
   DiagnosticPriority,
   PaymentMethod,
   PaymentStatus
-} from '../../frontend/src/types/index';
+} from '../types/index';
 
 export type {
   Bed,

@@ -18,7 +18,7 @@ import {
   INITIAL_TREATMENT_NOTES,
   INITIAL_NOTIFICATIONS,
   INITIAL_AUDIT_LOGS
-} from '../frontend/src/data/seedData';
+} from './data/seedData';
 
 export interface HospitalDatabaseState {
   settings: typeof INITIAL_SETTINGS;

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/server.cjs",
     "dev": "tsx watch index.ts",
-    "build": "esbuild index.ts --bundle --platform=node --format=cjs --packages=external --outfile=dist/server.cjs"
+    "build": "esbuild index.ts --bundle --platform=node --format=cjs --packages=external --outfile=dist/server.cjs && esbuild app.ts --bundle --platform=node --target=node18 --format=esm --packages=external --outfile=api/app.bundle.js",
+    "build:vercel": "esbuild app.ts --bundle --platform=node --target=node18 --format=esm --packages=external --outfile=api/app.bundle.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
@@ -23,4 +24,3 @@
     "typescript": "~5.8.2"
   }
 }
-
