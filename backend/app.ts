@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import path from 'path';
+import fs from 'fs';
 import apiRouter from './routes';
 import { getMongoClient } from './db';
 
@@ -9,13 +10,13 @@ export const app = express();
 
 // 1. Comprehensive CORS setup for separate frontend & backend deployment
 app.use(cors({
-  origin: true, // Dynamically reflects origin - works with localhost, vercel.app, render, custom domains
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
 }));
 
-// Explicit preflight handler across all paths
+// Preflight handler
 app.options('*', cors());
 
 // 2. Body Parser
@@ -30,19 +31,18 @@ getMongoClient().catch(err => {
   console.warn('[MongoDB] Startup connection note:', err.message);
 });
 
-// 5. Fallback for static serving if running monolithically
+// 5. Fallback for static serving if running monolithically and frontend dist exists
 const clientDistPath = path.resolve(process.cwd(), 'frontend', 'dist');
-app.use(express.static(clientDistPath));
-
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return next();
-  }
-  res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
-    if (err) {
-      next();
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
     }
+    res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
+      if (err) next();
+    });
   });
-});
+}
 
 export default app;
